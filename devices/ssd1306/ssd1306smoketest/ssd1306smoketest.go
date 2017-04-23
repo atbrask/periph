@@ -149,7 +149,7 @@ func (s *SmokeTest) Run(args []string) (err error) {
 	return err
 }
 
-func (s *SmokeTest) run(i2cBus i2c.Bus, spiBus spi.ConnCloser, dc gpio.PinOut, w, h int, rotated bool) (err error) {
+func (s *SmokeTest) run(i2cBus i2c.Bus, spiBus spi.ConnConfigCloser, dc gpio.PinOut, w, h int, rotated bool) (err error) {
 	s.timings = make([]time.Duration, 2)
 	start := time.Now()
 	i2cDev, err2 := ssd1306.NewI2C(i2cBus, w, h, rotated)

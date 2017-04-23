@@ -176,12 +176,13 @@ func NewI2C(b i2c.Bus, opts *Opts) (*Dev, error) {
 //
 // BUG(maruel): This code was not tested yet, still waiting for a SPI enabled
 // device in the mail.
-func NewSPI(s spi.Conn, opts *Opts) (*Dev, error) {
+func NewSPI(s spi.ConnConfig, opts *Opts) (*Dev, error) {
 	// It works both in Mode0 and Mode3.
-	if err := s.DevParams(10000000, spi.Mode3, 8); err != nil {
+	bus, err := s.DevParams(10000000, spi.Mode3, 8)
+	if err != nil {
 		return nil, err
 	}
-	d := &Dev{d: s, isSPI: true}
+	d := &Dev{d: bus, isSPI: true}
 	if err := d.makeDev(opts); err != nil {
 		return nil, err
 	}

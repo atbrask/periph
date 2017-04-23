@@ -94,7 +94,7 @@ type Dev struct {
 // Maximum I²C speed is 1Mhz.
 //
 // MOSI is not used and should be grounded.
-func New(s spi.Conn, i i2c.Bus, cs gpio.PinOut) (*Dev, error) {
+func New(s spi.ConnConfig, i i2c.Bus, cs gpio.PinOut) (*Dev, error) {
 	// Sadly the Lepton will unconditionally send 27fps, even if the effective
 	// rate is 9fps.
 	mode := spi.Mode3
@@ -112,7 +112,8 @@ func New(s spi.Conn, i i2c.Bus, cs gpio.PinOut) (*Dev, error) {
 	}
 	// TODO(maruel): Switch to 16 bits per word, so that big endian 16 bits word
 	// decoding is done by the SPI driver.
-	if err := s.DevParams(20000000, mode, 8); err != nil {
+	bus, err := s.DevParams(20000000, mode, 8)
+	if err != nil {
 		return nil, err
 	}
 	c, err := cci.New(i)
@@ -127,7 +128,7 @@ func New(s spi.Conn, i i2c.Bus, cs gpio.PinOut) (*Dev, error) {
 	frameWidth := w*2 + 4
 	d := &Dev{
 		Dev:        c,
-		s:          s,
+		s:          bus,
 		cs:         cs,
 		prevImg:    image.NewGray16(image.Rect(0, 0, w, h)),
 		frameWidth: frameWidth,

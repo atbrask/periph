@@ -103,6 +103,20 @@ type Packet struct {
 // io.Reader.
 type Conn interface {
 	conn.Conn
+	// TxPackets does multiple operations over the SPI bus.
+	//
+	// The maximum number of bytes can be limited depending on the driver. Query
+	// conn.Limits.MaxTxSize() can be used to determine the limit.
+	//
+	// If the last packet has KeepCS:true, the behavior is undefined. The CS line
+	// will likely not stay asserted. This is a driver limitation.
+	TxPackets(p []Packet) error
+}
+
+// ConnConfig is the interface to be provided to device drivers.
+//
+// The driver calls DevParams() to retrieve a configured connection.
+type ConnConfig interface {
 	// DevParams sets the communication parameters of the connection for use by a
 	// device.
 	//
@@ -114,23 +128,15 @@ type Conn interface {
 	//
 	// mode specifies the clock and signal polarities, if the bus is using half
 	// duplex (shared MISO and MOSI) or if CS is not needed.
-	DevParams(maxHz int64, mode Mode, bits int) error
-	// TxPackets does multiple operations over the SPI bus.
-	//
-	// The maximum number of bytes can be limited depending on the driver. Query
-	// conn.Limits.MaxTxSize() can be used to determine the limit.
-	//
-	// If the last packet has KeepCS:true, the behavior is undefined. The CS line
-	// will likely not stay asserted. This is a driver limitation.
-	TxPackets(p []Packet) error
+	DevParams(maxHz int64, mode Mode, bits int) (Conn, error)
 }
 
-// ConnCloser is a SPI bus that can be closed.
+// ConnConfigCloser is a SPI bus that can be closed.
 //
 // This interface is meant to be handled by the application.
-type ConnCloser interface {
+type ConnConfigCloser interface {
 	io.Closer
-	Conn
+	ConnConfig
 	// LimitSpeed sets the maximum bus speed.
 	//
 	// It lets an application use a device at a lower speed than the maximum

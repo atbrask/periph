@@ -119,7 +119,7 @@ func (s *SmokeTest) Run(args []string) (err error) {
 	return err
 }
 
-func run(i2cBus i2c.Bus, spiBus spi.ConnCloser) (err error) {
+func run(i2cBus i2c.Bus, spiBus spi.ConnConfigCloser) (err error) {
 	opts := &bme280.Opts{
 		Temperature: bme280.O16x,
 		Pressure:    bme280.O16x,
